@@ -2,7 +2,7 @@ require("phnq_log").exec("phnq_tmplt", function(log)
 {
 	var phnq_core = require("phnq_core");
 
-    var PARAM_REGEX = /_\{([^\}]*)\}(\{([^\}]*)\})?/g;
+	var PARAM_REGEX = /_\{([^\}]*)\}(\{([^\}]*)\})?/g;
 
 	var isSet = function(val)
 	{
@@ -31,7 +31,7 @@ require("phnq_log").exec("phnq_tmplt", function(log)
 		var compsLen = comps.length;
 		for(var i=1; i<compsLen; i+=2)
 		{
-            var comp = comps[i];
+			var comp = comps[i];
 			var defaultVal = defaultValues[i];
 			try
 			{
@@ -46,53 +46,53 @@ require("phnq_log").exec("phnq_tmplt", function(log)
 		return paramVals;
 	};
 
-    var phnq_tmplt =
-    {
-        Template: phnq_core.clazz(
-        {
-            init: function(txt)
-            {
-                this.txt = txt;
-                this.comps = null;
-                this.defaultValues = {};
-            },
+	var phnq_tmplt =
+	{
+		Template: phnq_core.clazz(
+		{
+			init: function(txt)
+			{
+				this.txt = txt;
+				this.comps = null;
+				this.defaultValues = {};
+			},
 
-            parse: function()
-            {
-                this.comps = [];
-                var txt = this.txt;
-                var m;
-                var idx = 0;
-                while((m = PARAM_REGEX.exec(txt)))
-                {
-                    this.comps.push(txt.substring(idx, m.index)); // static text
-                    this.comps.push(m[1]); // param name
+			parse: function()
+			{
+				this.comps = [];
+				var txt = this.txt;
+				var m;
+				var idx = 0;
+				while((m = PARAM_REGEX.exec(txt)))
+				{
+					this.comps.push(txt.substring(idx, m.index)); // static text
+					this.comps.push(m[1]); // param name
 
-                    if(m[3])
-                        this.defaultValues[this.comps.length-1] = m[3];
-                    
-                    idx = PARAM_REGEX.lastIndex;
-                }
-                this.comps.push(txt.substring(idx)); // leftover static text
-            },
+					if(m[3])
+						this.defaultValues[this.comps.length-1] = m[3];
 
-            render: function(params)
-            {
-                if(!this.comps)
-                    this.parse();
+					idx = PARAM_REGEX.lastIndex;
+				}
+				this.comps.push(txt.substring(idx)); // leftover static text
+			},
 
-                params = params || {};
+			render: function(params)
+			{
+				if(!this.comps)
+					this.parse();
+
+				params = params || {};
 
 				var comps = this.comps;
 				var compsLen = comps.length;
-				
+
 				var paramVals;
 				try // try fast method first -- all or nothing...
 				{
 					var evalBuf = [];
 					for(var i=1; i<compsLen; i+=2)
 					{
-	                    var comp = comps[i];
+						var comp = comps[i];
 						var defaultVal = this.defaultValues[i];
 						if(defaultVal == undefined)
 						{
@@ -112,21 +112,21 @@ require("phnq_log").exec("phnq_tmplt", function(log)
 					log.warn("Caught error in fast parameterization -- using slow...", ex);
 					paramVals = evalParamValsSlow(params, comps, this.defaultValues);
 				}
-				
+
 				var buf = [];
 				for(var i=0; i<compsLen; i++)
 				{
-                    var comp = comps[i];
-                    if(i % 2)
+					var comp = comps[i];
+					if(i % 2)
 						buf.push(paramVals["p"+i]);
 					else
-                        buf.push(comps[i]);
+						buf.push(comps[i]);
 				}
 
-                return buf.join("");
-            }
-        });
-    };
+				return buf.join("");
+			}
+		});
+	};
 
 	if(phnq_core.isServer())
 		module.exports = phnq_tmplt;
